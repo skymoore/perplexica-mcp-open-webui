@@ -11,20 +11,20 @@ Perplexica MCP Server is a Model Context Protocol (MCP) server that acts as a pr
 
 ## Installation
 
-To use the Perplexica MCP Server, you'll need to have Python 3.7 or later installed on your system.
+To use the Perplexica MCP Server, you'll need to have Python 3.12 or later installed on your system.
 
 1. Clone this repository:
 
-   ```bash
-   git clone https://github.com/yourusername/perplexica-mcp.git
-   cd perplexica-mcp
-   ```
+  ```bash
+  git clone https://github.com/yourusername/perplexica-mcp.git
+  cd perplexica-mcp
+  ```
 
 2. Install the required dependencies:
 
-   ```bash
-   pip install -e .
-   ```
+  ```bash
+  pip install -e .
+  ```
 
 ## MCP Server Configuration
 
@@ -35,11 +35,27 @@ This server is designed to be used with MCP-compatible clients. Add the followin
   "mcpServers": {
     "perplexica": {
       "command": "uv",
-      "args": ["run", "/path/to/perplexica-mcp/perplexica_mcp_tool.py"]
+      "args": ["run", "/path/to/perplexica-mcp/perplexica_mcp_tool.py"],
+      "env": {
+        "PERPLEXICA_BACKEND_URL": "http://localhost:3000/api/search"
+      }
     }
   }
 }
 ```
+
+## Backend URL Configuration
+
+The Perplexica MCP Server uses an environment variable to configure the backend URL. To set this up:
+
+1. Create a `.env` file in the root of the project (if it doesn't already exist)
+2. Add the `PERPLEXICA_BACKEND_URL` variable with your desired backend URL:
+
+```ini
+PERPLEXICA_BACKEND_URL=http://localhost:3000/api/search
+```
+
+The server will use this URL to communicate with the Perplexica backend. If the environment variable is not set, it will default to `http://localhost:3000/api/search`.
 
 ## Usage
 
