@@ -1,0 +1,6 @@
+[project]
+name = "perplexica-mcp"
+version = "0.1.0"
+dependencies = ["mcp[cli]", "requests"]
+
+[tool.uv]
