@@ -14,14 +14,16 @@ Perplexica MCP Server is a Model Context Protocol (MCP) server that acts as a pr
 To use the Perplexica MCP Server, you'll need to have Python 3.7 or later installed on your system.
 
 1. Clone this repository:
-   ```
+
+   ```bash
    git clone https://github.com/yourusername/perplexica-mcp.git
    cd perplexica-mcp
    ```
 
 2. Install the required dependencies:
-   ```
-   pip install -r requirements.txt
+
+   ```bash
+   pip install -e .
    ```
 
 ## MCP Server Configuration
@@ -58,7 +60,7 @@ This MCP server provides a `search` tool that can be used by MCP clients to perf
 
 When connected to an MCP client, you can use the search tool like this:
 
-```
+```none
 Search for "Python programming best practices" using webSearch focus mode
 ```
 
