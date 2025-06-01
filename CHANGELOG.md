@@ -16,3 +16,10 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Single search tool that forwards requests to Perplexica endpoint
 - Parameter passthrough for all Perplexica search options and configurations
 - MCP-compatible interface for AI assistants and other MCP clients
+
+### Changed
+
+- Replaced hardcoded Perplexica backend URL with environment variable configuration
+- Updated documentation to explain environment variable configuration
+- Added MIT License file
+- Added `requires-python` value to pyproject.toml

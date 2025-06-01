@@ -1,13 +1,20 @@
 #!/usr/bin/env python3
 
+import os
 import requests
+from dotenv import load_dotenv
 from mcp.server.fastmcp import FastMCP
 from pydantic import Field
 from typing import Annotated
 
-# Create an MCP server
-mcp = FastMCP("Perplexica", dependencies=["requests", "mcp", "pydantic"])
+# Load environment variables from .env file
+load_dotenv()
 
+# Get the backend URL from environment variable or use default
+PERPLEXICA_BACKEND_URL = os.getenv('PERPLEXICA_BACKEND_URL', 'http://localhost:3000/api/search')
+
+# Create an MCP server
+mcp = FastMCP("Perplexica", dependencies=["requests", "mcp", "pydantic", "python-dotenv"])
 
 # Add the search tool
 @mcp.tool(
@@ -51,7 +58,6 @@ def search(
         stream=stream
     )
 
-
 def perplexica_search(
     query, focus_mode,
     chat_model=None,
@@ -85,7 +91,7 @@ def perplexica_search(
     Returns:
         dict: The search results
     """
-    url = 'http://localhost:3000/api/search'
+    url = PERPLEXICA_BACKEND_URL
     payload = {
         'query': query,
         'focusMode': focus_mode
@@ -107,7 +113,6 @@ def perplexica_search(
     response = requests.post(url, json=payload)
     response.raise_for_status()
     return response.json()
-
 
 if __name__ == "__main__":
     # Run the MCP server
