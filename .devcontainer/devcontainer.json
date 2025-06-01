@@ -20,6 +20,7 @@
 			"settings": { 
                 "ruff.nativeServer": "on",
                 "[python]": {
+					"languageServer": "None",
                     "defaultInterpreterPath": "/usr/local/bin/python",
                     "linting.enabled": true,
                     "editor.formatOnSave": true,
