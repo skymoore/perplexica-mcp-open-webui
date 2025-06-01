@@ -1,0 +1,57 @@
+// For format details, see https://aka.ms/devcontainer.json. For config options, see the README at:
+// https://github.com/microsoft/vscode-dev-containers/tree/v0.245.0/containers/python-3
+{
+	"name": "Python 3.13",
+	"image": "mcr.microsoft.com/devcontainers/python:3.13-bullseye",
+    "runArgs": ["--device=/dev/net/tun"],
+	"features": {
+		"ghcr.io/tailscale/codespace/tailscale": {
+    		"version": "latest"
+  		},
+		"ghcr.io/stuartleeks/dev-container-features/shell-history:0": {
+			"version": "latest"
+		}
+	},
+	// Configure tool-specific properties.
+	"customizations": {
+		// Configure properties specific to VS Code.
+		"vscode": {
+			// Set *default* container specific settings.json values on container create.
+			"settings": { 
+                "ruff.nativeServer": "on",
+                "[python]": {
+                    "defaultInterpreterPath": "/usr/local/bin/python",
+                    "linting.enabled": true,
+                    "editor.formatOnSave": true,
+                    "editor.codeActionsOnSave": {
+                        "source.fixAll": "explicit",
+                        "source.organizeImports": "explicit"
+                    },
+                    "editor.defaultFormatter": "charliermarsh.ruff"
+                },
+                "notebook.formatOnSave.enabled": true,
+                "notebook.codeActionsOnSave": {
+                    "notebook.source.fixAll": "explicit",
+                    "notebook.source.organizeImports": "explicit"
+                }
+			},
+			
+			// Add the IDs of extensions you want installed when the container is created.
+            "extensions": [
+				"ms-python.python",
+				"charliermarsh.ruff",
+				"ms-python.vscode-python-envs",
+                "rooveterinaryinc.roo-cline",
+				"tamasfe.even-better-toml",
+				"davidanson.vscode-markdownlint"
+			]
+		}
+	},
+
+	// Use 'forwardPorts' to make a list of ports inside the container available locally.
+	// "forwardPorts": [],
+
+	// Use 'postCreateCommand' to run commands after the container is created.
+	//"postCreateCommand": ""
+	"postCreateCommand": "sh .devcontainer/post-create.sh"
+}
