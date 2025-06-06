@@ -1,7 +1,7 @@
 **User:**
 
 <task>
-Use the perplexity tool to answer this question:
+Use the perplexica tool to answer this question:
 
 Can we modify our MCP server implementation, that currently leverages the official Python MCP SDK package, so that it combines stdio, SSE and Streamable HTTP transports for the MCP server?
 </task>
