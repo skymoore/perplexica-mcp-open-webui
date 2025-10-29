@@ -2,7 +2,7 @@
 
 import argparse
 import os
-from typing import Annotated, Optional
+from typing import Annotated, Optional, Union
 
 import httpx
 import uvicorn
@@ -38,6 +38,11 @@ if os.getenv("PERPLEXICA_EMBEDDING_MODEL_PROVIDER") and os.getenv(
         "provider": os.getenv("PERPLEXICA_EMBEDDING_MODEL_PROVIDER"),
         "name": os.getenv("PERPLEXICA_EMBEDDING_MODEL_NAME"),
     }
+
+PERPLEXICA_RESPONSE_FORMAT = os.getenv("PERPLEXICA_RESPONSE_FORMAT", "json").lower()
+
+if PERPLEXICA_RESPONSE_FORMAT not in ["json", "formatted"]:
+    raise ValueError(f"Invalid PERPLEXICA_RESPONSE_FORMAT: {PERPLEXICA_RESPONSE_FORMAT}. Must be 'json' or 'formatted'")
 
 # Create FastMCP server with default settings
 mcp = FastMCP("Perplexica", dependencies=["httpx", "mcp", "python-dotenv", "uvicorn"])
@@ -90,6 +95,36 @@ def _find_model_key(models: list, model_identifier: str) -> Optional[str]:
         if str(m.get("name", "")).lower() == str(model_identifier).lower():
             return m.get("key")
     return None
+
+
+def _format_search_response(response: dict) -> str:
+    """
+    Format Perplexica search response as human-readable text.
+    
+    Args:
+        response: Raw JSON response from Perplexica API with 'message' and 'sources' fields
+        
+    Returns:
+        Formatted string with message and sources
+    """
+    if "error" in response:
+        return f"Error: {response['error']}"
+    
+    message = response.get("message", "")
+    
+    formatted = message
+    
+    sources = response.get("sources", [])
+    if sources:
+        formatted += "\n\nSources:\n"
+        formatted += "- Perplexica Search\n"
+        for source in sources:
+            metadata = source.get("metadata", {})
+            title = metadata.get("title", "Unknown")
+            url = metadata.get("url", "")
+            formatted += f"- {title}: {url}\n"
+    
+    return formatted
 
 
 async def _normalize_model_spec(client: httpx.AsyncClient, model_spec: dict, is_embedding: bool):
@@ -206,11 +241,23 @@ async def perplexica_search(
                 PERPLEXICA_BACKEND_URL, json=payload, timeout=PERPLEXICA_READ_TIMEOUT
             )
             response.raise_for_status()
-            return response.json()
+            result = response.json()
+            
+            if PERPLEXICA_RESPONSE_FORMAT == "formatted":
+                return {"response": _format_search_response(result)}
+            else:
+                return result
+                
     except httpx.HTTPError as e:
-        return {"error": f"HTTP error occurred: {str(e)}"}
+        error_msg = f"HTTP error occurred: {str(e)}"
+        if PERPLEXICA_RESPONSE_FORMAT == "formatted":
+            return {"response": f"Error: {error_msg}"}
+        return {"error": error_msg}
     except Exception as e:
-        return {"error": f"An error occurred: {str(e)}"}
+        error_msg = f"An error occurred: {str(e)}"
+        if PERPLEXICA_RESPONSE_FORMAT == "formatted":
+            return {"response": f"Error: {error_msg}"}
+        return {"error": error_msg}
 
 
 @mcp.tool()
@@ -238,23 +285,26 @@ async def search(
         Optional[str], Field(description="Custom system instructions")
     ] = None,
     stream: Annotated[bool, Field(description="Whether to stream responses")] = False,
-) -> dict:
+) -> Union[str, dict]:
     """
     Search using Perplexica's AI-powered search engine.
 
     This tool provides access to Perplexica's search capabilities with various focus modes
     for different types of searches including web search, academic search, writing assistance,
     and specialized searches for platforms like YouTube and Reddit.
+    
+    Returns:
+        Formatted text string if PERPLEXICA_RESPONSE_FORMAT=formatted, otherwise JSON dict
     """
-    # Fail fast if required models are absent
     if (chat_model or DEFAULT_CHAT_MODEL) is None or (
         embedding_model or DEFAULT_EMBEDDING_MODEL
     ) is None:
-        return {
-            "error": "Both chatModel and embeddingModel are required. Configure PERPLEXICA_* model env vars or pass them in the request."
-        }
+        error_msg = "Both chatModel and embeddingModel are required. Configure PERPLEXICA_* model env vars or pass them in the request."
+        if PERPLEXICA_RESPONSE_FORMAT == "formatted":
+            return f"Error: {error_msg}"
+        return {"error": error_msg}
 
-    return await perplexica_search(
+    result = await perplexica_search(
         query=query,
         focus_mode=focus_mode,
         chat_model=chat_model,
@@ -264,6 +314,11 @@ async def search(
         system_instructions=system_instructions,
         stream=stream,
     )
+    
+    if PERPLEXICA_RESPONSE_FORMAT == "formatted":
+        return result.get("response", "No response generated")
+    else:
+        return result
 
 
 def main():

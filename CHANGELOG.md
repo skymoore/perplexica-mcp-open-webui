@@ -5,6 +5,21 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+- **Configurable Response Format**: Added `PERPLEXICA_RESPONSE_FORMAT` environment variable to control response formatting
+  - `json` (default): Returns raw JSON response from Perplexica API
+  - `formatted`: Returns human-readable formatted text with sources
+- **Response Formatter Function**: Added `_format_search_response()` function to convert JSON responses into readable text format
+- **Enhanced Error Handling**: Error messages now respect the configured response format
+
+### Changed
+
+- **Search Tool Return Type**: The `search` tool now returns `Union[str, dict]` depending on the `PERPLEXICA_RESPONSE_FORMAT` setting
+- **Updated Documentation**: Added response format configuration examples to `.sample.env`
+
 ## [0.3.5] - 2025-09-25
 
 ### Fixed
